@@ -22,11 +22,14 @@ let running = false;
 initialize();
 
 function initialize() {
+    cells.forEach(cell => cell.addEventListener("click", clickedCell));
+    restartBtn.addEventListener("click",restartGame);
+    statusText.textContent = `${currentPlayer}'s turn`;
 
 }
 
 function clickedCell() {
-
+    
 }
 
 function updateCell(cell, index) {
