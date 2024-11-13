@@ -52,7 +52,33 @@ function changePlayer() {
 }
 
 function winner() {
+    let wins = false;
+    for (let i = 0; i < winConditions.length; ++i) {
+        const condition = winConditions[i];
+        const cellA = options[condition[0]];
+        const cellB = options[condition[1]];
+        const cellC = options[condition[2]];
+        const cellD = options[condition[3]];
+        const cellE = options[condition[4]];
 
+        if(cellA == "" || cellB == "" || cellC == "" || cellD == "" || cellE == "") {
+            continue
+        } 
+        if (cellA == cellB && cellB == cellC && cellC == cellD && cellD == cellE) {
+            wins = true;
+            break;
+        }
+    }
+
+    if (wins == true) {
+        statusText.textContent = `${currentPlayer} wins`;
+        running = false;
+    } else if (!options.includes("")) { 
+        statusText.textContent = `It's a draw`;
+        running = false;
+    } else {
+        changePlayer()
+    }
 }
 
 function restartGame() {
