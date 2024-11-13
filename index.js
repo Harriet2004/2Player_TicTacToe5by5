@@ -56,5 +56,9 @@ function winner() {
 }
 
 function restartGame() {
-
+    currentPlayer = "X";
+    options = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
+    running = true;
+    statusText.textContent = `${currentPlayer} turn`;
+    cells.forEach(cell => cell.textContent = "");
 }
