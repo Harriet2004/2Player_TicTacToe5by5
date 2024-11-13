@@ -25,11 +25,16 @@ function initialize() {
     cells.forEach(cell => cell.addEventListener("click", clickedCell));
     restartBtn.addEventListener("click",restartGame);
     statusText.textContent = `${currentPlayer}'s turn`;
-
+    running = true;
 }
 
 function clickedCell() {
-    
+    const indexCell = this.getAttribute("cellIndex");
+    if (options[indexCell] != "" || !running) {
+        return;
+    }
+    updateCell(this, indexCell);
+    winner();
 }
 
 function updateCell(cell, index) {
