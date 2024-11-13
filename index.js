@@ -37,12 +37,18 @@ function clickedCell() {
     winner();
 }
 
-function updateCell(cell, index) {
-
+function updateCell(cell, indexCell) {
+    options[indexCell] = currentPlayer;
+    cell.textContent = currentPlayer;
 }
 
 function changePlayer() {
-
+    if (currentPlayer == "X") {
+        currentPlayer = "O";
+    } else {
+        currentPlayer = "X";
+    }
+    statusText.textContent = `${currentPlayer}'s turn`;
 }
 
 function winner() {
