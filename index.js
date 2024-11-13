@@ -40,6 +40,7 @@ function clickedCell() {
 function updateCell(cell, indexCell) {
     options[indexCell] = currentPlayer;
     cell.textContent = currentPlayer;
+    cell.innerHTML = `<span class="cell-text">${currentPlayer}</span>`;
 }
 
 function changePlayer() {
@@ -53,6 +54,7 @@ function changePlayer() {
 
 function winner() {
     let wins = false;
+    let winningCombo = null;
     for (let i = 0; i < winConditions.length; ++i) {
         const condition = winConditions[i];
         const cellA = options[condition[0]];
@@ -66,6 +68,7 @@ function winner() {
         } 
         if (cellA == cellB && cellB == cellC && cellC == cellD && cellD == cellE) {
             wins = true;
+            winningCombo = condition;
             break;
         }
     }
@@ -73,6 +76,7 @@ function winner() {
     if (wins == true) {
         statusText.textContent = `${currentPlayer} wins`;
         running = false;
+        highlightWinningCells(winningCombo);
     } else if (!options.includes("")) { 
         statusText.textContent = `It's a draw`;
         running = false;
@@ -85,6 +89,19 @@ function restartGame() {
     currentPlayer = "X";
     options = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""];
     running = true;
-    statusText.textContent = `${currentPlayer} turn`;
+    statusText.textContent = `${currentPlayer}'s turn`;
     cells.forEach(cell => cell.textContent = "");
+    cells.forEach(cell => {
+        cell.textContent = "";
+        cell.classList.remove("winning-cell");
+    });
+}
+
+function highlightWinningCells(combo) {
+    combo.forEach(index => {
+        const cellText = cells[index].querySelector(".cell-text");
+        if (cellText) {
+            cellText.classList.add("winning-cell"); // Apply glow only to text
+        }
+    });
 }
