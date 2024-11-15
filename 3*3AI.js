@@ -78,7 +78,7 @@ function checkWinner() {
     }
 
     if (wins == true) {
-        statusText.textContent = `${options[winningCombo[0]]} wins!`; // Use the winner directly from the board
+        statusText.textContent = `${options[winningCombo[0]]} wins!`;
         running = false;
         highlightWinningCells(winningCombo);
         return true;
@@ -151,8 +151,8 @@ function checkWinState(board, player) {
     for (let i = 0; i < winConditions.length; ++i) {
         const condition = winConditions[i];
         let allMatch = true;
-        for (let i = 0; i < condition.length; ++i) {
-            const index = condition[i];
+        for (let j = 0; j < condition.length; ++j) {
+            const index = condition[j];
             if (board[index] != player) {
                 allMatch = false;
                 break;
