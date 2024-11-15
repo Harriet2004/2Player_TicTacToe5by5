@@ -51,7 +51,7 @@ function changePlayer() {
 function winner() {
     let wins = false;
     let winningCombo = null;
-    
+
     for (let i = 0; i < winConditions.length; ++i) {
         const condition = winConditions[i];
         const cellA = options[condition[0]];
@@ -96,7 +96,7 @@ function highlightWinningCells(combo) {
     combo.forEach(index => {
         const cellText = cells[index].querySelector(".cell-text");
         if (cellText) {
-            cellText.classList.add("winning-cell"); // Apply glow only to text
+            cellText.classList.add("winning-cell"); 
         }
     });
 }
