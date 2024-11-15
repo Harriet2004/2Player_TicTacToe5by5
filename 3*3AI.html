@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Tic Tac Toe</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap" rel="stylesheet">
@@ -11,23 +11,26 @@
 </head>
 <body>
     <div id="gameContainer">
-        <h2 id = "status" class = "orbitron-title"></h2>
+        <h2 id="status" class="orbitron-title"></h2>
         <div id="cellContainer">
-            <div cellIndex = "0" class = "cell"></div>
-            <div cellIndex = "1" class = "cell"></div>
-            <div cellIndex = "2" class = "cell"></div>
-            <div cellIndex = "3" class = "cell"></div>
-            <div cellIndex = "4" class = "cell"></div>
-            <div cellIndex = "5" class = "cell"></div>
-            <div cellIndex = "6" class = "cell"></div>
-            <div cellIndex = "7" class = "cell"></div>
-            <div cellIndex = "8" class = "cell"></div>
+            <div id="0" class="cell"></div>
+            <div id="1" class="cell"></div>
+            <div id="2" class="cell"></div>
+            <div id="3" class="cell"></div>
+            <div id="4" class="cell"></div>
+            <div id="5" class="cell"></div>
+            <div id="6" class="cell"></div>
+            <div id="7" class="cell"></div>
+            <div id="8" class="cell"></div>
         </div>
         <div class="button-group">
-            <button id = "restartButton">Restart</button>
+            <button id="restartButton">Restart</button>
             <button onclick="location.href = 'starting.html'">Go back</button>
+        </div>
+        <div class="endgame" style="display: none;">
+            <div class="text"></div>
         </div>
     </div>  
     <script src="3*3AI.js"></script>
 </body>
-</html> 
+</html>

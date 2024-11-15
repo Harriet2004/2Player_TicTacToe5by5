@@ -9,26 +9,22 @@ const winConditions = [
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6],
+    [6, 4, 2],
 ];
 
-// Define scores for different game outcomes
-const scores = {
-    X: -10,  // Human wins
-    O: 10,   // AI wins
-    tie: 0   // Draw
-};
-
 let options = ["", "", "", "", "", "", "", "", ""];
-let humanPlayer = "X";
-let aiPlayer = "O";
+const humanPlayer = "X";
+const aiPlayer = "O";
 let currentPlayer = humanPlayer;
 let running = false;
 
 initialize();
 
 function initialize() {
-    cells.forEach(cell => cell.addEventListener("click", clickedCell));
+    cells.forEach((cell, index) => {
+        cell.setAttribute("cellIndex", index);
+        cell.addEventListener("click", clickedCell);
+    });
     restartBtn.addEventListener("click", restartGame);
     statusText.textContent = `${currentPlayer}'s turn`;
     running = true;
@@ -36,108 +32,158 @@ function initialize() {
 
 function clickedCell() {
     const indexCell = this.getAttribute("cellIndex");
-    if (options[indexCell] != "" || !running || currentPlayer !== humanPlayer) {
+    if (options[indexCell] != "" || !running) {
         return;
     }
-    updateCell(this, indexCell);
-    
-    // Check for a winner after the human moves
-    let result = checkWinner();
-    if (!result && running) {
-        // If no winner yet, it's the AI's turn
-        bestMove();
-        checkWinner(); // Check for a winner after the AI moves
+    updateCell(this, indexCell, humanPlayer);
+
+    if (!checkWinner() && currentPlayer == aiPlayer) {
+        const bestMoveIndex = getBestSpot();
+        const bestMoveCell = document.querySelector(`[cellIndex='${bestMoveIndex}']`);
+        updateCell(bestMoveCell, bestMoveIndex, aiPlayer);
+        checkWinner();
     }
 }
 
-function updateCell(cell, indexCell) {
-    options[indexCell] = currentPlayer;
-    cell.innerHTML = `<span class="cell-text">${currentPlayer}</span>`;
-}
-
-function bestMove() {
-    let bestScore = -Infinity;
-    let move;
-
-    for (let i = 0; i < options.length; i++) {
-        if (options[i] == "") {
-            options[i] = aiPlayer;
-            let score = minimax(options, 0, false);
-            options[i] = "";
-            if (score > bestScore) {
-                bestScore = score;
-                move = i;
-            }
-        }
-    }
-
-    // Make the AI move if a valid move is found
-    if (move !== undefined) {
-        options[move] = aiPlayer;
-        cells[move].innerHTML = `<span class="cell-text">${aiPlayer}</span>`;
-        currentPlayer = humanPlayer; // Switch back to the human player
-        statusText.textContent = `${currentPlayer}'s turn`;
-    }
-}
-
-function minimax(board, depth, isMaximizing) {
-    let result = checkWinner();
-    
-    // Base cases
-    if (result === aiPlayer) return scores[aiPlayer];
-    if (result === humanPlayer) return scores[humanPlayer];
-    if (result === "tie") return scores.tie;
-
-    if (isMaximizing) {
-        let bestScore = -Infinity;
-        for (let i = 0; i < board.length; i++) {
-            if (board[i] == "") {
-                board[i] = aiPlayer;
-                let score = minimax(board, depth + 1, false);
-                board[i] = "";
-                bestScore = Math.max(score, bestScore);
-            }
-        }
-        return bestScore;
+function updateCell(cell, indexCell, player) {
+    options[indexCell] = player;
+    cell.textContent = player;
+    cell.innerHTML = `<span class="cell-text">${player}</span>`;
+    if (player == humanPlayer) {
+        currentPlayer = aiPlayer;
     } else {
-        let bestScore = Infinity;
-        for (let i = 0; i < board.length; i++) {
-            if (board[i] == "") {
-                board[i] = humanPlayer;
-                let score = minimax(board, depth + 1, true);
-                board[i] = "";
-                bestScore = Math.min(score, bestScore);
-            }
-        }
-        return bestScore;
+        currentPlayer = humanPlayer;
     }
+    statusText.textContent = `${currentPlayer}'s turn`;
 }
 
 function checkWinner() {
-    // Check for winner
-    for (let i = 0; i < winConditions.length; i++) {
-        const [a, b, c] = winConditions[i];
-        if (options[a] && options[a] == options[b] && options[b] == options[c]) {
-            running = false;
-            statusText.textContent = `${options[a]} wins!`;
-            return options[a];
+    let wins = false;
+    let winningCombo = null;
+
+    for (let i = 0; i < winConditions.length; ++i) {
+        const condition = winConditions[i];
+        const cellA = options[condition[0]];
+        const cellB = options[condition[1]];
+        const cellC = options[condition[2]];
+
+        if (cellA == "" || cellB == "" || cellC == "") {
+            continue
+        } 
+        if (cellA == cellB && cellB == cellC) {
+            wins = true;
+            winningCombo = condition;
+            break;
         }
     }
-    
-    // Check for tie
-    if (!options.includes("")) {
+
+    if (wins == true) {
+        statusText.textContent = `${options[winningCombo[0]]} wins!`; // Use the winner directly from the board
         running = false;
+        highlightWinningCells(winningCombo);
+        return true;
+    } else if (!options.includes("")) {
         statusText.textContent = `It's a draw!`;
-        return "tie";
+        running = false;
+        return true;
     }
-    
-    return null; // Explicitly return null if no winner or tie
+    return false;
 }
 
+function getBestSpot() {
+    return minimax(options, aiPlayer).index;
+}
+
+function minimax(board, player) {
+    let availableSpots = [];
+    for (let i = 0; i < board.length; i++) {
+        if (board[i] == "") {
+            availableSpots.push(i);
+        }
+    }
+
+    if (checkWinState(board, humanPlayer)) return { score: -10 };
+    if (checkWinState(board, aiPlayer)) return { score: 10 };
+    if (availableSpots.length === 0) return { score: 0 };
+
+    let moves = [];
+    for (let i = 0; i < availableSpots.length; i++) {
+        const move = {};
+        move.index = availableSpots[i];
+        board[move.index] = player;
+
+        let nextPlayer;
+        if (player == aiPlayer) {
+            nextPlayer = humanPlayer;
+        } else {
+            nextPlayer = aiPlayer;
+        }
+        const result = minimax(board, nextPlayer);
+        move.score = result.score;
+        board[move.index] = "";
+        moves.push(move);
+    }
+
+    let bestMove;
+    if (player === aiPlayer) {
+        let bestScore = -Infinity;
+        for (let i = 0; i < moves.length; ++i) {
+            const move = moves[i];
+            if (move.score > bestScore) {
+                bestScore = move.score;
+                bestMove = move;
+            }
+        }
+    } else {
+        let bestScore = Infinity;
+        for (let i = 0; i < moves.length; ++i) {
+            const move = moves[i];
+            if (move.score < bestScore) {
+                bestScore = move.score;
+                bestMove = move;
+            }
+        }
+    }
+    return bestMove;
+}
+
+function checkWinState(board, player) {
+    for (let i = 0; i < winConditions.length; ++i) {
+        const condition = winConditions[i];
+        let allMatch = true;
+        for (let i = 0; i < condition.length; ++i) {
+            const index = condition[i];
+            if (board[index] != player) {
+                allMatch = false;
+                break;
+            }
+        }
+        if (allMatch) {
+            return true;
+        }
+    }
+}
+
+
 function restartGame() {
-    currentPlayer = humanPlayer;
     options = ["", "", "", "", "", "", "", "", ""];
+    currentPlayer = humanPlayer;
     running = true;
     statusText.textContent = `${currentPlayer}'s turn`;
-    cells.forEach(cell => cell.innerHTML = "");
+    cells.forEach(cell => cell.textContent = "");
+    cells.forEach(cell => {
+        cell.textContent = "";
+        cell.classList.remove("winning-cell");
+    });
 }
+
+function highlightWinningCells(combo) {
+    combo.forEach(index => {
+        const cellText = cells[index].querySelector(".cell-text");
+        if (cellText) {
+            cellText.classList.add("winning-cell"); 
+        }
+    });
+}
+
+
